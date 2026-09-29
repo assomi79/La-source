@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block title %}Fiche élève{% endblock %}{% block content %}
+<h3>{% if eleve %}Modifier{% else %}Inscrire un élève{% endif %}</h3>
+<form method="post" class="card card-body">
+<div class="row g-3">
+<div class="col-md-4"><label>Nom *</label><input name="nom" class="form-control" value="{{ eleve['nom'] if eleve }}" required></div>
+<div class="col-md-4"><label>Prénoms *</label><input name="prenoms" class="form-control" value="{{ eleve['prenoms'] if eleve }}" required></div>
+<div class="col-md-2"><label>Sexe</label><select name="sexe" class="form-select"><option value="M" {{ 'selected' if eleve and eleve['sexe']=='M' }}>M</option><option value="F" {{ 'selected' if eleve and eleve['sexe']=='F' }}>F</option></select></div>
+<div class="col-md-2"><label>Naissance</label><input type="date" name="date_naissance" class="form-control" value="{{ eleve['date_naissance'] if eleve }}"></div>
+<div class="col-md-4"><label>Lieu de naissance</label><input name="lieu_naissance" class="form-control" value="{{ eleve['lieu_naissance'] if eleve }}"></div>
+<div class="col-md-4"><label>Classe *</label><select name="classe_id" class="form-select" required>{% for c in classes %}<option value="{{ c['id'] }}" {{ 'selected' if eleve and eleve['classe_id']==c['id'] }}>{{ c['nom'] }} — {{ c['cycle'] }}</option>{% endfor %}</select>
+<small class="text-muted">Le cycle est déduit de la classe.</small></div>
+{% if eleve %}<div class="col-md-4"><label>Statut</label><select name="statut" class="form-select"><option {{ 'selected' if eleve['statut']=='Inscrit' }}>Inscrit</option><option {{ 'selected' if eleve['statut']=='Transféré' }}>Transféré</option><option {{ 'selected' if eleve['statut']=='Exclu' }}>Exclu</option><option {{ 'selected' if eleve['statut']=='Diplômé' }}>Diplômé</option></select></div>{% endif %}
+<div class="col-md-4"><label>Tuteur</label><input name="tuteur" class="form-control" value="{{ eleve['tuteur'] if eleve }}"></div>
+<div class="col-md-4"><label>Téléphone tuteur</label><input name="telephone_tuteur" class="form-control" value="{{ eleve['telephone_tuteur'] if eleve }}"></div>
+<div class="col-md-4"><label>Adresse</label><input name="adresse" class="form-control" value="{{ eleve['adresse'] if eleve }}"></div>
+</div><div class="mt-3"><button class="btn btn-primary">Enregistrer</button> <a href="{{ url_for('eleves') }}" class="btn btn-secondary">Retour</a></div>
+</form>{% endblock %}

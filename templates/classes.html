@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% block title %}Classes{% endblock %}{% block content %}
+<h3>🏛️ Classes & Frais annuels <small class="text-muted">({{ type_etab }})</small></h3>
+{% if type_etab != 'Mixte' %}<div class="alert alert-info">Filtre actif : <b>{{ type_etab }}</b> — les classes de l'autre cycle sont masquées (toujours en base). {% if voir_tout %}<a href="{{ url_for('classes') }}">Masquer</a>{% else %}<a href="{{ url_for('classes') }}?voir_tout=1">Voir tout pour nettoyer</a>{% endif %}</div>{% endif %}
+<div class="row g-3"><div class="col-md-8"><div class="table-responsive"><table class="table table-striped">
+<tr><th>Classe</th><th>Cycle</th><th>Titulaire</th><th>Effectif</th><th>Inscription</th><th>Scolarité</th><th></th></tr>
+{% for c in classes %}<tr><td><b>{{ c['nom'] }}</b></td><td>{{ c['cycle'] }}</td><td>{{ c['titulaire'] }}</td><td>{{ c['eff'] }}/{{ c['effectif_max'] }}</td>
+<td>{{ "{:,}".format(c['frais_inscription']).replace(',',' ') }}</td><td>{{ "{:,}".format(c['frais_scolarite']).replace(',',' ') }}</td>
+<td><form method="post" action="{{ url_for('classe_supprimer', cid=c['id']) }}" onsubmit="return confirm('Supprimer ?')"><button class="btn btn-sm btn-outline-danger">X</button></form></td></tr>{% endfor %}
+</table></div></div>
+<div class="col-md-4"><div class="card"><div class="card-header fw-bold">+ Nouvelle classe</div><div class="card-body"><form method="post">
+<div class="mb-2"><label>Nom</label><input name="nom" class="form-control" placeholder="ex: CM2, 3ème" required></div>
+<div class="mb-2"><label>Cycle</label><select name="cycle" class="form-select"><option>Primaire</option><option>Secondaire</option></select></div>
+<div class="mb-2"><label>Titulaire</label><input name="titulaire" class="form-control"></div>
+<div class="row"><div class="col"><label>Inscription (F)</label><input type="number" name="frais_inscription" class="form-control" value="10000"></div>
+<div class="col"><label>Scolarité (F)</label><input type="number" name="frais_scolarite" class="form-control" value="75000"></div></div>
+<button class="btn btn-success w-100 mt-3">Ajouter</button></form></div></div></div></div>{% endblock %}

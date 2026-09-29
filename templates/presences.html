@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% block title %}Présences{% endblock %}{% block content %}
+<h3>📅 Présences — Appel par cours + notification parent</h3>
+<p class="text-muted small">Faites l'appel à chaque cours (ex: Maths 8h). Si absent, cliquez <b>WhatsApp</b> ou <b>SMS</b> pour prévenir le parent au numéro enregistré.</p>
+<form class="row g-2 my-3" method="get">
+<div class="col-md-3"><select name="classe_id" class="form-select">{% for c in classes %}<option value="{{ c['id'] }}" {{ 'selected' if classe_id==c['id']|string }}>{{ c['nom'] }}</option>{% endfor %}</select></div>
+<div class="col-md-3"><input type="date" name="date" value="{{ date_j }}" class="form-control"></div>
+<div class="col-md-4"><input name="cours" value="{{ cours_nom }}" class="form-control" placeholder="Cours : ex Maths 8h-10h / Français..."></div>
+<div class="col-md-2"><button class="btn btn-primary w-100">Charger</button></div></form>
+{% if eleves %}
+<form method="post"><input type="hidden" name="classe_id" value="{{ classe_id }}"><input type="hidden" name="date" value="{{ date_j }}">
+<input type="hidden" name="cours" value="{{ cours_nom }}">
+<table class="table table-striped"><tr><th>Élève</th><th>Tél parent</th><th>Statut</th><th>Motif</th><th>Notifier</th></tr>
+{% for e in eleves %}{% set ex = exist.get(e['id']) %}{% set nf = notifs.get(e['id']) %}<tr>
+<td>{{ e['nom'] }} {{ e['prenoms'] }}</td><td><small>{{ e['telephone_tuteur'] }}</small></td>
+<td><select name="st_{{ e['id'] }}" class="form-select"><option {{ 'selected' if not ex or ex['statut']=='Présent' }}>Présent</option><option {{ 'selected' if ex and ex['statut']=='Absent' }}>Absent</option><option {{ 'selected' if ex and ex['statut']=='Retard' }}>Retard</option></select></td>
+<td><input name="mo_{{ e['id'] }}" class="form-control" value="{{ ex['motif'] if ex }}"></td>
+<td>{% if nf %}{% if nf['wa'] %}<a href="{{ nf['wa'] }}" target="_blank" class="btn btn-sm btn-success">WhatsApp</a>{% endif %} {% if nf['sms'] %}<a href="{{ nf['sms'] }}" class="btn btn-sm btn-outline-primary">SMS</a>{% endif %}{% else %}<span class="text-muted small">—</span>{% endif %}</td>
+</tr>{% endfor %}</table>
+<button name="appel" value="1" class="btn btn-success">💾 Enregistrer l'appel ({{ cours_nom or 'journée' }} — {{ date_j }})</button></form>
+<div class="alert alert-info mt-3"><b>Envoi auto ?</b> WhatsApp/SMS en 1 clic ci-dessus (gratuit, via votre téléphone). L'envoi 100% automatique sans cliquer demande un abonnement passerelle (ex: Twilio / Orange API) — dites-moi votre pays/opérateur pour activer.</div>
+{% endif %}
+<h5 class="mt-4">Synthèse 10 derniers jours</h5>
+<table class="table table-sm"><tr><th>Date</th><th>Présents</th><th>Absents</th><th>Retards</th></tr>
+{% for s in synth %}<tr><td>{{ s['date'] }}</td><td>{{ s['tot']-s['abs']-s['ret'] }}</td><td><span class="badge bg-danger">{{ s['abs'] }}</span></td><td><span class="badge bg-warning">{{ s['ret'] }}</span></td></tr>{% endfor %}</table>{% endblock %}

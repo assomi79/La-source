@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block title %}Notes{% endblock %}{% block content %}
+<h3>✏️ Saisie des notes <small class="text-muted">Primaire = mensuel • Secondaire = trimestre</small></h3>
+<form class="row g-2 my-3" method="get">
+<div class="col-md-3"><select name="classe_id" class="form-select" required><option value="">— Classe —</option>{% for c in classes %}<option value="{{ c['id'] }}" {{ 'selected' if classe_id==c['id']|string }}>{{ c['nom'] }} ({{ c['cycle'] }})</option>{% endfor %}</select></div>
+<div class="col-md-3"><select name="matiere_id" class="form-select" required><option value="">— Matière —</option>{% for m in matieres %}<option value="{{ m['id'] }}" {{ 'selected' if matiere_id==m['id']|string }}>{{ m['nom'] }}</option>{% endfor %}</select></div>
+<div class="col-md-4"><select name="periode" class="form-select" required><option value="">— Période —</option>
+<optgroup label="Primaire (mensuel)">{% for m in mois %}<option {{ 'selected' if periode==m }}>{{ m }}</option>{% endfor %}</optgroup>
+<optgroup label="Secondaire (trimestre)">{% for t in trimestres %}<option {{ 'selected' if periode==t }}>{{ t }}</option>{% endfor %}</optgroup>
+</select></div><div class="col-md-2"><button class="btn btn-primary w-100">Charger</button></div></form>
+{% if lignes %}
+<form method="post"><input type="hidden" name="classe_id" value="{{ classe_id }}"><input type="hidden" name="matiere_id" value="{{ matiere_id }}"><input type="hidden" name="periode" value="{{ periode }}">
+<div class="table-responsive"><table class="table table-striped"><tr><th>Matricule</th><th>Élève</th><th style="width:140px">Note /20</th><th style="width:100px">Coef</th></tr>
+{% for l in lignes %}<tr><td>{{ l['matricule'] }}</td><td>{{ l['nom'] }} {{ l['prenoms'] }}</td>
+<td><input type="hidden" name="eleve_id" value="{{ l['id'] }}"><input name="note" class="form-control" placeholder="/20" value="{{ l['note'] if l['note'] is not none }}"></td>
+<td><input name="coef" type="number" class="form-control" value="{{ l['coef'] or 1 }}" min="1" max="10"></td></tr>{% endfor %}
+</table></div><button name="sauvegarder" value="1" class="btn btn-success">💾 Enregistrer les notes ({{ periode }})</button></form>
+{% elif classe_id %}<p class="text-muted">Aucun élève dans cette classe.</p>{% endif %}{% endblock %}

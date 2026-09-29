@@ -1,0 +1,40 @@
+{% extends "base.html" %}{% block title %}Admin{% endblock %}{% block content %}
+<h3>⚙️ Administration — {{ settings.get('ecole_nom','') }} ({{ settings.get('type_etab','Mixte') }})</h3>
+<div class="row g-3">
+<div class="col-md-4"><div class="card border-primary"><div class="card-header fw-bold bg-primary text-white">🏫 Mon établissement (multi-écoles)</div><div class="card-body">
+<form method="post"><input type="hidden" name="action" value="ecole">
+<label>Nom de l'école</label><input name="ecole_nom" class="form-control mb-2" value="{{ settings.get('ecole_nom','') }}" required>
+<label>Type d'établissement</label><select name="type_etab" class="form-select mb-2">
+<option {{ 'selected' if settings.get('type_etab')=='Primaire seul' }}>Primaire seul</option>
+<option {{ 'selected' if settings.get('type_etab')=='Secondaire seul' }}>Secondaire seul</option>
+<option {{ 'selected' if settings.get('type_etab')=='Mixte' }}>Mixte</option></select>
+<button class="btn btn-primary w-100">Enregistrer</button></form>
+<p class="small text-muted mt-2">Primaire seul → listes mensuelles + classes CP1-CM2.<br>Secondaire seul → trimestres + 6ème-Tle.<br>Mixte → les deux. Pour une <b>nouvelle école</b> : copiez le dossier, supprimez <code>ecole.db</code>, relancez (nouvelle base vide).</p>
+</div></div>
+<div class="card mt-3"><div class="card-header fw-bold">Année scolaire active : {{ annee['libelle'] }}</div><div class="card-body">
+<form method="post"><input type="hidden" name="action" value="annee"><div class="input-group"><input name="libelle" class="form-control" placeholder="ex: 2025-2026"><button class="btn btn-primary">Basculer</button></div></form>
+<ul class="mt-2">{% for a in annees %}<li>{{ a['libelle'] }} {% if a['active'] %}<span class="badge bg-success">active</span>{% endif %}</li>{% endfor %}</ul>
+<hr><a href="{{ url_for('sauvegarde') }}" class="btn btn-dark w-100 mb-2">💾 Télécharger sauvegarde (.db)</a>
+<a href="{{ url_for('export_eleves') }}" class="btn btn-outline-secondary w-100">Export élèves CSV</a>
+</div></div></div>
+<div class="col-md-4"><div class="card"><div class="card-header fw-bold">👥 Accès du personnel & rôles (créés par {{ session.get('role') }})</div><div class="card-body">
+<p class="small text-muted">Directeur = tout. Secrétaire = inscriptions/notes/présences + créer accès (sauf Directeur). Comptable = finances. Enseignant = notes/appel/contenus. Surveillant = appel/discipline.</p>
+<table class="table table-sm"><tr><th>Nom</th><th>Login</th><th>Rôle</th><th></th></tr>{% for u in users %}<tr><td>{{ u['nom'] }}</td><td>{{ u['username'] }}</td><td><span class="badge bg-primary">{{ u['role'] }}</span></td>
+<td><form method="post" action="" class="d-inline" onsubmit="return confirm('Annuler cet accès ?')"><input type="hidden" name="action" value="user_del"><input type="hidden" name="uid" value="{{ u['id'] }}"><button class="btn btn-sm btn-outline-danger">X</button></form></td></tr>
+<tr><td colspan="4"><form method="post" class="row g-1">
+<input type="hidden" name="action" value="user_edit"><input type="hidden" name="uid" value="{{ u['id'] }}">
+<div class="col-4"><input name="nom" class="form-control form-control-sm" value="{{ u['nom'] }}"></div>
+<div class="col-3"><input name="username" class="form-control form-control-sm" value="{{ u['username'] }}"></div>
+<div class="col-3"><select name="role" class="form-select form-select-sm"><option {{ 'selected' if u['role']=='Directeur' }}>Directeur</option><option {{ 'selected' if u['role']=='Secrétaire' }}>Secrétaire</option><option {{ 'selected' if u['role']=='Comptable' }}>Comptable</option><option {{ 'selected' if u['role']=='Enseignant' }}>Enseignant</option><option {{ 'selected' if u['role']=='Surveillant' }}>Surveillant</option></select></div>
+<div class="col-2"><input name="password" class="form-control form-control-sm" placeholder="Nv mdp"></div>
+<div class="col-12"><button class="btn btn-sm btn-outline-primary w-100 mt-1">Modifier {{ u['username'] }}</button></div></form></td></tr>{% endfor %}</table>
+<form method="post"><input type="hidden" name="action" value="user"><div class="row g-2">
+<div class="col-6"><input name="nom" class="form-control" placeholder="Nom personnel" required></div><div class="col-6"><input name="username" class="form-control" placeholder="Identifiant" required></div>
+<div class="col-6"><input name="password" class="form-control" placeholder="Mot de passe (défaut 1234)"></div>
+<div class="col-6"><select name="role" class="form-select"><option>Directeur</option><option>Secrétaire</option><option>Comptable</option><option>Enseignant</option><option>Surveillant</option></select></div>
+<div class="col-12"><button class="btn btn-success w-100">+ Créer accès + choisir rôle</button></div></div></form>
+</div></div></div>
+<div class="col-md-4"><div class="card"><div class="card-header fw-bold">Base de données</div><div class="card-body">
+<ul>{% for k,v in counts.items() %}<li>{{ k }} : <b>{{ v }}</b></li>{% endfor %}</ul>
+<p class="small text-muted">Rôles : Directeur (tout), Secrétaire (inscriptions, notes, présences), Comptable (finances), Enseignant (notes de ses matières), Surveillant (présences, discipline).</p>
+</div></div></div></div>{% endblock %}

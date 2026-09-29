@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block title %}Encaissement{% endblock %}{% block content %}
+<h3>🧾 Encaisser un paiement</h3>
+<div class="row justify-content-center"><div class="col-md-6"><div class="card card-body"><form method="post">
+<label>Élève</label><select name="eleve_id" class="form-select mb-2" required>{% for e in eleves %}<option value="{{ e['id'] }}" {{ 'selected' if preselect==e['id']|string }}>{{ e['nom'] }} {{ e['prenoms'] }} ({{ e['matricule'] }})</option>{% endfor %}</select>
+<div class="row"><div class="col"><label>Date</label><input type="date" name="date" value="{{ today }}" class="form-control mb-2"></div>
+<div class="col"><label>Mode</label><select name="mode" class="form-select mb-2">{% for m in modes %}<option>{{ m }}</option>{% endfor %}</select></div></div>
+<label>Rubrique</label><select name="rubrique" class="form-select mb-2">{% for r in rubriques %}<option>{{ r }}</option>{% endfor %}</select>
+<label>Montant (FCFA)</label><input type="number" name="montant" class="form-control mb-3" min="500" step="500" required>
+<button class="btn btn-warning w-100">💰 Encaisser & générer reçu</button></form></div></div></div>{% endblock %}

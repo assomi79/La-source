@@ -1,0 +1,42 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Espace Parent - {{ e['nom'] }}</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"></head>
+<body>
+<nav class="navbar navbar-dark bg-success"><div class="container-fluid">
+<span class="navbar-brand">👨‍👩‍👧 Espace Parent — <b>{{ e['nom'] }} {{ e['prenoms'] }}</b> ({{ e['matricule'] }})</span>
+<span><a href="{{ url_for('parent_password') }}" class="btn btn-light btn-sm">Changer mot de passe</a> <a href="{{ url_for('parent_logout') }}" class="btn btn-dark btn-sm">Sortir</a></span>
+</div></nav>
+<div class="container mt-3">
+{% with msgs=get_flashed_messages(with_categories=true) %}{% for c,m in msgs %}<div class="alert alert-{{c}}">{{m}}</div>{% endfor %}{% endwith %}
+<div class="row g-3">
+<div class="col-md-4"><div class="card"><div class="card-header fw-bold">🧒 Ma fiche</div><div class="card-body">
+<b>Classe :</b> {{ e['classe_nom'] }} ({{ e['cycle'] }})<br><b>Titulaire :</b> {{ e['titulaire'] }}<br>
+<b>Tuteur :</b> {{ e['tuteur'] }} — {{ e['telephone_tuteur'] }}<br><b>Statut :</b> {{ e['statut'] }}
+<hr><b>Moyenne générale :</b> {{ moy_gen if moy_gen is not none else '—' }} /20<br>
+<b>Absences :</b> {{ nb_abs }} | <b>Retards :</b> {{ nb_ret }}
+</div></div>
+<div class="card mt-3"><div class="card-header bg-warning fw-bold">💰 Scolarité & solde</div><div class="card-body">
+Dû : <b>{{ "{:,}".format(total_du).replace(',',' ') }} F</b><br>Payé : <b class="text-success">{{ "{:,}".format(total_paye).replace(',',' ') }} F</b><br>
+Reste : <b class="{{ 'text-danger' if reste>0 else 'text-success' }}">{{ "{:,}".format(reste).replace(',',' ') }} F</b>
+<table class="table table-sm mt-2">{% for p in paiements %}<tr><td>{{ p['date'] }}</td><td>{{ p['rubrique'] }}</td><td>{{ "{:,}".format(p['montant']).replace(',',' ') }}</td></tr>{% endfor %}</table>
+<p class="small text-muted">Payez à la comptabilité de l'école, le reçu apparaîtra ici.</p>
+</div></div></div>
+<div class="col-md-8">
+<div class="card"><div class="card-header fw-bold">📊 Évaluations & moyennes par matière</div><div class="card-body table-responsive">
+<table class="table table-sm"><tr><th>Matière</th><th>Moyenne</th><th>Détail</th></tr>
+{% for m,mo in moy_mat.items() %}<tr><td>{{ m }}</td><td><b>{{ mo }}</b>/20</td><td><small>{% for n in notes if n['mat']==m %}{{ n['periode'] }}: {{ n['note'] }} | {% endfor %}</small></td></tr>{% else %}<tr><td colspan="3" class="text-muted">Pas encore de notes.</td></tr>{% endfor %}</table>
+{% if blancs %}<p><b>Examen blanc :</b> {% for b in blancs %}{{ b['mat'] }} {{ b['note'] }}/20 ({{ b['periode'] }}) ; {% endfor %}</p>{% endif %}
+</div></div>
+<div class="card mt-3"><div class="card-header fw-bold">📅 Absences (30 dernières)</div><div class="card-body">
+{% for a in absences %}<span class="badge {{ 'bg-success' if a['statut']=='Présent' else 'bg-danger' if a['statut']=='Absent' else 'bg-warning' }}">{{ a['date'] }} {{ a['cours'] or '' }}: {{ a['statut'] }}</span> {% else %}RAS{% endfor %}
+</div></div>
+<div class="row g-3 mt-1">
+<div class="col-md-6"><div class="card"><div class="card-header fw-bold">📚 Cours</div><div class="card-body">{% for c in cours %}<p class="mb-1"><b>{{ c['matiere'] }} — {{ c['titre'] }}</b><br><small>{{ c['contenu'] }}</small></p>{% else %}<span class="text-muted">Bientôt.</span>{% endfor %}</div></div></div>
+<div class="col-md-6"><div class="card"><div class="card-header fw-bold">📝 Banque de devoirs</div><div class="card-body">{% for d in devoirs %}<p class="mb-1"><b>{{ d['matiere'] }} : {{ d['titre'] }}</b> (limite {{ d['date_limite'] }})<br><small>{{ d['consigne'] }}</small></p>{% else %}<span class="text-muted">Aucun devoir.</span>{% endfor %}</div></div></div>
+</div>
+<div class="card mt-3"><div class="card-header fw-bold">📖 Ressources pédagogiques</div><div class="card-body">{% for r in ressources %}<p class="mb-1"><b>{{ r['titre'] }}</b> <small>({{ r['matiere'] }})</small><br><small>{{ r['description'] }}</small> {% if r['lien'] %}<a href="{{ r['lien'] }}" target="_blank">Ouvrir</a>{% endif %}</p>{% else %}<span class="text-muted">Bientôt.</span>{% endfor %}</div></div>
+<div class="card mt-3 border-primary"><div class="card-header fw-bold bg-primary text-white">📎 Fichiers à télécharger (Word, Excel, PDF, Images)</div><div class="card-body table-responsive"><table class="table table-sm">
+{% for f in fichiers %}<tr><td><span class="badge bg-info">{{ f['type_doc'] }}</span><br><small>{{ f['matiere'] }}</small></td><td><b>{{ f['titre'] }}</b><br><small>{{ f['original'] }}</small></td>
+<td><a href="{{ url_for('fichier_download', fid=f['id']) }}" class="btn btn-sm btn-primary">⬇️ Télécharger / Exporter</a></td></tr>
+{% else %}<tr><td colspan="3" class="text-muted">Aucun fichier pour l'instant (exercices, compositions passées, cours PDF...).</td></tr>{% endfor %}</table></div></div>
+<div class="mt-3"><a href="{{ url_for('demande_inscription') }}" class="btn btn-outline-success btn-sm">+ Demande d'inscription (frère/sœur)</a> <button onclick="window.print()" class="btn btn-secondary btn-sm">Imprimer ma fiche</button></div>
+</div></div></div></body></html>

@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% block title %}Demandes{% endblock %}{% block content %}
+<h3>📥 Demandes d'inscription <small class="text-muted">(depuis les parents)</small></h3>
+<table class="table table-striped"><tr><th>N°</th><th>Date</th><th>Enfant</th><th>Classe</th><th>Tuteur/Tél</th><th>Statut</th><th></th></tr>
+{% for d in rows %}<tr><td>{{ d['id'] }}</td><td>{{ d['date_demande'] }}</td><td><b>{{ d['nom'] }}</b> {{ d['prenoms'] }}</td>
+<td>{{ d['classe_souhaitee'] }}</td><td>{{ d['tuteur'] }}<br>{{ d['telephone_tuteur'] }}</td><td><span class="badge {{ 'bg-warning' if d['statut']=='En attente' else 'bg-success' }}">{{ d['statut'] }}</span></td>
+<td>{% if d['statut']=='En attente' %}<form method="post" action="{{ url_for('demande_valider', did=d['id']) }}"><button class="btn btn-sm btn-success">Valider → créer élève</button></form>{% endif %}
+<a href="{{ url_for('demande_print', did=d['id']) }}" class="btn btn-sm btn-outline-secondary mt-1">Fiche</a></td></tr>{% endfor %}</table>{% endblock %}

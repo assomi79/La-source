@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% block title %}Matières{% endblock %}{% block content %}
+<h3>📚 Matières & Coefficients</h3>
+<div class="row g-3"><div class="col-md-5">
+<div class="card"><div class="card-header fw-bold">Matières</div><div class="card-body table-responsive"><table class="table table-sm">
+<tr><th>Matière</th><th>Code</th><th>Cycle</th></tr>{% for m in matieres %}<tr><td>{{ m['nom'] }}</td><td>{{ m['code'] }}</td><td>{{ m['cycle'] }}</td></tr>{% endfor %}</table></div></div>
+<div class="card mt-3"><div class="card-header">+ Ajouter matière</div><div class="card-body"><form method="post" class="row g-2">
+<div class="col-6"><input name="nom" class="form-control" placeholder="Nom" required></div><div class="col-3"><input name="code" class="form-control" placeholder="Code"></div>
+<div class="col-3"><select name="cycle" class="form-select"><option>Primaire</option><option>Secondaire</option></select></div>
+<div class="col-12"><button class="btn btn-success w-100">Ajouter</button></div></form></div></div></div>
+<div class="col-md-7"><div class="card"><div class="card-header fw-bold">Coefficients par classe</div><div class="card-body">
+<form method="post" action="{{ url_for('matiere_coef') }}" class="row g-2 mb-3">
+<div class="col-5"><select name="classe_id" class="form-select">{% for c in classes %}<option value="{{ c['id'] }}">{{ c['nom'] }}</option>{% endfor %}</select></div>
+<div class="col-4"><select name="matiere_id" class="form-select">{% for m in matieres %}<option value="{{ m['id'] }}">{{ m['nom'] }}</option>{% endfor %}</select></div>
+<div class="col-2"><input type="number" name="coefficient" class="form-control" value="1" min="1" max="10"></div>
+<div class="col-1"><button class="btn btn-primary">OK</button></div></form>
+<table class="table table-sm"><tr><th>Classe</th><th>Matière</th><th>Coef</th></tr>
+{% for c in coeffs %}<tr><td>{{ c['classe_nom'] }}</td><td>{{ c['mat_nom'] }}</td><td>{{ c['coefficient'] }}</td></tr>{% else %}<tr><td colspan="3" class="text-muted">Définissez les coefficients (ex: Français coef 3 en CM2).</td></tr>{% endfor %}</table>
+</div></div></div></div>{% endblock %}

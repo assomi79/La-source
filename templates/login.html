@@ -1,0 +1,10 @@
+{% extends "base.html" %}{% block title %}Connexion{% endblock %}{% block content %}
+<div class="row justify-content-center mt-5"><div class="col-md-4">
+<div class="card shadow"><div class="card-body">
+<h4 class="text-center">🏫 Mon École Privée</h4>
+<p class="text-center text-muted">Primaire + Secondaire — Connexion</p>
+<form method="post"><div class="mb-3"><label>Utilisateur</label><input name="username" class="form-control" required></div>
+<div class="mb-3"><label>Mot de passe</label><input name="password" type="password" class="form-control" required></div>
+<button class="btn btn-primary w-100">Se connecter</button></form>
+<p class="small text-muted mt-3 text-center">Démo : <code>admin</code> / <code>admin123</code></p>
+</div></div></div></div>{% endblock %}

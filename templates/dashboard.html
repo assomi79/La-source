@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% block title %}Tableau de bord{% endblock %}{% block content %}
+<h3>Tableau de bord <small class="text-muted">— {{ ecole_nom }} — {{ type_etab }} — Année {{ annee['libelle'] if annee }}</small> <span class="badge bg-dark">{{ session.get('role') }}</span></h3>
+{% if session.get('role')=='Enseignant' %}
+<div class="alert alert-info">👩‍🏫 <b>Espace Enseignant</b> : faites l'appel par cours, saisissez vos notes, importez cours/exercices. Pas de finances.</div>
+{% elif session.get('role')=='Comptable' %}
+<div class="alert alert-warning">💰 <b>Espace Comptable</b> : caisse, encaissements, impayés, dépenses.</div>
+{% elif session.get('role')=='Surveillant' %}
+<div class="alert alert-secondary">📋 <b>Espace Surveillant</b> : appel, discipline, demandes.</div>
+{% elif session.get('role')=='Secrétaire' %}
+<div class="alert alert-primary">📝 <b>Espace Secrétariat</b> : inscriptions, dossiers, notes, présences + création des accès (sauf Directeur).</div>
+{% endif %}
+<div class="row g-3 my-2">
+<div class="col-md-2"><div class="card stat bg-primary text-white"><div class="card-body"><h3>{{ stats.total }}</h3><small>Élèves inscrits</small></div></div></div>
+<div class="col-md-2"><div class="card stat bg-success text-white"><div class="card-body"><h3>{{ stats.primaire }}</h3><small>Primaire</small></div></div></div>
+<div class="col-md-2"><div class="card stat bg-info text-white"><div class="card-body"><h3>{{ stats.secondaire }}</h3><small>Secondaire</small></div></div></div>
+{% if session.get('role') in ('Directeur','Secrétaire','Comptable') %}<div class="col-md-2"><div class="card stat bg-warning"><div class="card-body"><h3>{{ "{:,}".format(stats.recettes).replace(',',' ') }} F</h3><small>Recettes</small></div></div></div>{% endif %}
+{% if session.get('role') in ('Directeur','Secrétaire','Comptable') %}<div class="col-md-2"><div class="card stat bg-danger text-white"><div class="card-body"><h3>{{ "{:,}".format(stats.impayes).replace(',',' ') }} F</h3><small>Impayés estimés</small></div></div></div>{% endif %}
+<div class="col-md-2"><div class="card stat bg-dark text-white"><div class="card-body"><h3>{{ stats.abs_today }}</h3><small>Absents aujourd'hui</small></div></div></div>
+</div>
+<div class="row g-3">
+<div class="col-md-6"><div class="card"><div class="card-header fw-bold">Effectifs par classe</div><div class="card-body table-responsive">
+<table class="table table-sm table-striped"><tr><th>Classe</th><th>Cycle</th><th>Effectif</th></tr>
+{% for r in eff %}<tr><td>{{ r['nom'] }}</td><td>{{ r['cycle'] }}</td><td><span class="badge bg-primary">{{ r['n'] }}</span></td></tr>{% endfor %}
+</table></div></div></div>
+<div class="col-md-6"><div class="card"><div class="card-header fw-bold">Dernières inscriptions <a href="{{ url_for('eleves') }}" class="btn btn-sm btn-outline-primary float-end">Tout voir</a></div><div class="card-body table-responsive">
+<table class="table table-sm"><tr><th>Matricule</th><th>Nom</th><th>Classe</th></tr>
+{% for e in recents %}<tr><td>{{ e['matricule'] }}</td><td><a href="{{ url_for('eleve_fiche', eid=e['id']) }}">{{ e['nom'] }} {{ e['prenoms'] }}</a></td><td>{{ e['classe_nom'] }}</td></tr>{% else %}<tr><td colspan="3" class="text-muted">Aucun élève — commencez par inscrire.</td></tr>{% endfor %}
+</table>
+<div class="d-flex gap-2 flex-wrap">
+<a href="{{ url_for('eleve_ajouter') }}" class="btn btn-success btn-sm">+ Inscrire un élève</a>
+<a href="{{ url_for('paiement') }}" class="btn btn-warning btn-sm">Encaisser</a>
+<a href="{{ url_for('presences') }}" class="btn btn-info btn-sm">Faire l'appel</a>
+<a href="{{ url_for('notes') }}" class="btn btn-secondary btn-sm">Saisir notes</a>
+</div></div></div></div>
+</div>{% endblock %}

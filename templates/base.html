@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Gestion École Privée{% endblock %}</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% if session.get('user_id') %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+<div class="container-fluid">
+<a class="navbar-brand fw-bold" href="{{ url_for('dashboard') }}">🏫 {{ ecole_nom }}</a>
+<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+<div class="collapse navbar-collapse" id="nav">
+<ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Tableau de bord</a></li>
+<li class="nav-item"><a class="nav-link" href="{{ url_for('eleves') }}">Scolarité</a></li>
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Pédagogie</a>
+<ul class="dropdown-menu">
+<li><a class="dropdown-item" href="{{ url_for('classes') }}">Classes</a></li>
+<li><a class="dropdown-item" href="{{ url_for('matieres') }}">Matières & Coef.</a></li>
+<li><a class="dropdown-item" href="{{ url_for('notes') }}">Saisie notes</a></li>
+<li><a class="dropdown-item" href="{{ url_for('bulletins') }}">Bulletins</a></li>
+<li><a class="dropdown-item" href="{{ url_for('contenus') }}">📤 Cours / Fichiers</a></li>
+</ul></li>
+{% if session.get('role') in ('Directeur','Secrétaire') %}<li class="nav-item"><a class="nav-link" href="{{ url_for('personnel') }}">Personnel</a></li>{% endif %}
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Vie scolaire</a>
+<ul class="dropdown-menu">
+<li><a class="dropdown-item" href="{{ url_for('presences') }}">Présences + WhatsApp</a></li>
+<li><a class="dropdown-item" href="{{ url_for('discipline') }}">Discipline</a></li>
+<li><a class="dropdown-item" href="{{ url_for('demandes_admin') }}">📥 Demandes inscription</a></li>
+</ul></li>
+{% if session.get('role') in ('Directeur','Secrétaire','Comptable') %}<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Finances</a>
+<ul class="dropdown-menu">
+<li><a class="dropdown-item" href="{{ url_for('finances') }}">Caisse & Impayés</a></li>
+<li><a class="dropdown-item" href="{{ url_for('paiement') }}">Encaisser</a></li>
+</ul></li>{% endif %}
+{% if session.get('role') in ('Directeur','Secrétaire') %}<li class="nav-item"><a class="nav-link" href="{{ url_for('admin') }}">⚙️ Accès & Rôles</a></li>{% endif %}
+</ul>
+<span class="navbar-text me-3">👤 {{ session.get('nom') }} ({{ session.get('role') }})</span>
+<a class="btn btn-light btn-sm" href="{{ url_for('logout') }}">Déconnexion</a>
+</div></div></nav>
+{% endif %}
+<div class="container-fluid mt-3">
+{% with msgs = get_flashed_messages(with_categories=true) %}
+{% for cat,msg in msgs %}<div class="alert alert-{{cat}} alert-dismissible fade show">{{msg}}<button class="btn-close" data-bs-dismiss="alert"></button></div>{% endfor %}
+{% endwith %}
+{% block content %}{% endblock %}
+<footer class="text-center text-muted small my-4">{{ ecole_nom }} • Primaire : <b>mensuelles</b> • Secondaire : <b>trimestrielles</b> • Espace parent : /parent/login</footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>

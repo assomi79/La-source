@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% block title %}Contenus & Fichiers{% endblock %}{% block content %}
+<h3>📤 Contenus → visibles parents (Cours, Devoirs, Ressources, Fichiers)</h3>
+<div class="row g-3">
+<div class="col-md-4">
+<div class="card"><div class="card-header fw-bold">+ Publier texte</div><div class="card-body"><form method="post">
+<label>Type</label><select name="kind" class="form-select mb-2"><option value="cours">Cours</option><option value="devoir">Devoir (banque)</option><option value="ressource">Ressource</option></select>
+<label>Classe</label><select name="classe_id" class="form-select mb-2">{% for c in classes %}<option value="{{ c['id'] }}">{{ c['nom'] }}</option>{% endfor %}</select>
+<label>Matière</label><input name="matiere" class="form-control mb-2">
+<label>Titre</label><input name="titre" class="form-control mb-2" required>
+<label>Détails / Consigne / Lien</label><textarea name="contenu" class="form-control mb-1" placeholder="Contenu du cours"></textarea>
+<textarea name="consigne" class="form-control mb-1" placeholder="Consigne devoir"></textarea>
+<div class="row"><div class="col"><input name="description" class="form-control" placeholder="Description ressource"></div><div class="col"><input name="lien" class="form-control" placeholder="Lien http..."></div></div>
+<label class="mt-2">Date limite (devoir)</label><input type="date" name="date_limite" class="form-control mb-2">
+<button class="btn btn-success w-100">Publier</button></form></div></div>
+<div class="card mt-3 border-primary"><div class="card-header fw-bold bg-primary text-white">📎 Importer fichier (Word, Excel, PDF, Image)</div><div class="card-body">
+<form method="post" action="{{ url_for('fichier_upload') }}" enctype="multipart/form-data">
+<label>Classe</label><select name="classe_id" class="form-select mb-2">{% for c in classes %}<option value="{{ c['id'] }}">{{ c['nom'] }}</option>{% endfor %}</select>
+<div class="row"><div class="col"><label>Matière</label><input name="matiere" class="form-control mb-2"></div>
+<div class="col"><label>Type</label><select name="type_doc" class="form-select mb-2"><option>Cours</option><option>Exercice</option><option>Composition passée</option><option>Corrigé</option><option>Autre</option></select></div></div>
+<label>Titre</label><input name="titre" class="form-control mb-2" placeholder="ex: Exo maths Ch.3">
+<label>Fichier (pdf, doc/docx, xls/xlsx, jpg/png, max 25 Mo)</label><input type="file" name="fichier" class="form-control mb-2" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.webp" required>
+<button class="btn btn-primary w-100">⬆️ Importer → visible parents</button></form>
+</div></div></div>
+<div class="col-md-8">
+<h5>📎 Fichiers (téléchargeables parents)</h5><table class="table table-sm">
+<tr><th>Classe</th><th>Type</th><th>Titre / Fichier</th><th></th></tr>
+{% for f in fichiers %}<tr><td>{{ f['classe_nom'] }}</td><td><span class="badge bg-info">{{ f['type_doc'] }}</span><br><small>{{ f['matiere'] }}</small></td>
+<td><b>{{ f['titre'] }}</b><br><small>{{ f['original'] }} ({{ (f['taille']/1024)|round(1) }} Ko) — {{ f['date_pub'] }} par {{ f['auteur'] }}</small></td>
+<td><a href="{{ url_for('fichier_download', fid=f['id']) }}" class="btn btn-sm btn-outline-primary">⬇️</a>
+{% if session.get('role') in ('Directeur','Secrétaire') %}<form method="post" action="{{ url_for('fichier_supprimer', fid=f['id']) }}" class="d-inline" onsubmit="return confirm('Supprimer ?')"><button class="btn btn-sm btn-outline-danger">X</button></form>{% endif %}</td></tr>
+{% else %}<tr><td colspan="4" class="text-muted">Aucun fichier. Importez exercices, compositions passées, cours PDF...</td></tr>{% endfor %}</table>
+<h5>Cours</h5><table class="table table-sm">{% for c in cours %}<tr><td>{{ c['classe_nom'] }}</td><td>{{ c['matiere'] }}</td><td><b>{{ c['titre'] }}</b><br><small>{{ c['contenu'] }}</small></td></tr>{% endfor %}</table>
+<h5>Devoirs</h5><table class="table table-sm">{% for d in devoirs %}<tr><td>{{ d['classe_nom'] }}</td><td>{{ d['matiere'] }}</td><td><b>{{ d['titre'] }}</b> ({{ d['date_limite'] }})<br><small>{{ d['consigne'] }}</small></td></tr>{% endfor %}</table>
+<h5>Ressources</h5><table class="table table-sm">{% for r in ressources %}<tr><td>{{ r['classe_nom'] }}</td><td>{{ r['matiere'] }}</td><td><b>{{ r['titre'] }}</b> {% if r['lien'] %}<a href="{{ r['lien'] }}" target="_blank">Ouvrir</a>{% endif %}<br><small>{{ r['description'] }}</small></td></tr>{% endfor %}</table>
+</div></div>{% endblock %}

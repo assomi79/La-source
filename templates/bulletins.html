@@ -1,0 +1,18 @@
+{% extends "base.html" %}{% block title %}Bulletins{% endblock %}{% block content %}
+<h3>📝 Bulletins — moyennes, rangs, mentions</h3>
+<form class="row g-2 my-3" method="get">
+<div class="col-md-4"><select name="classe_id" class="form-select">{% for c in classes %}<option value="{{ c['id'] }}" {{ 'selected' if classe_id==c['id']|string }}>{{ c['nom'] }} ({{ c['cycle'] }})</option>{% endfor %}</select></div>
+<div class="col-md-4"><select name="periode" class="form-select">
+<optgroup label="Primaire (mensuel)">{% for m in mois %}<option {{ 'selected' if periode==m }}>{{ m }}</option>{% endfor %}</optgroup>
+<optgroup label="Secondaire (trimestre)">{% for t in trimestres %}<option {{ 'selected' if periode==t }}>{{ t }}</option>{% endfor %}</optgroup></select></div>
+<div class="col-md-2"><button class="btn btn-primary w-100">Calculer</button></div></form>
+{% if resultats is not none %}
+<h5>{{ cl['nom'] }} — {{ periode }} ({{ resultats|length }} élèves)</h5>
+<div class="table-responsive"><table class="table table-bordered table-sm">
+<tr><th>Rang</th><th>Élève</th><th>Moyenne /20</th><th>Mention</th>{% for m in mats %}<th>{{ m['nom'] }}<br><small>coef {{ m['coef'] }}</small></th>{% endfor %}<th></th></tr>
+{% for r in resultats %}<tr><td><b>{{ r['rang'] }}</b></td><td>{{ r['eleve']['nom'] }} {{ r['eleve']['prenoms'] }}</td>
+<td><b>{{ r['moy'] if r['moy'] is not none else '—' }}</b></td><td>{{ r['mention'] }}</td>
+{% for d in r['details'] %}<td>{{ d['note'] if d['note'] is not none else '—' }}</td>{% endfor %}
+<td><a href="{{ url_for('bulletin_eleve', eid=r['eleve']['id']) }}?periode={{ periode }}" class="btn btn-sm btn-outline-primary">🖨️</a></td></tr>{% endfor %}
+</table></div><button onclick="window.print()" class="btn btn-secondary">Imprimer le tableau</button>
+{% endif %}{% endblock %}

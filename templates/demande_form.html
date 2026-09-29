@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block title %}Demande d'inscription{% endblock %}{% block content %}
+<h3>📝 Demande d'inscription (parent — sans compte)</h3>
+<div class="row"><div class="col-md-6"><div class="card card-body"><form method="post">
+<div class="row g-2"><div class="col-6"><label>Nom enfant *</label><input name="nom" class="form-control" required></div>
+<div class="col-6"><label>Prénoms *</label><input name="prenoms" class="form-control" required></div>
+<div class="col-4"><label>Sexe</label><select name="sexe" class="form-select"><option value="M">M</option><option value="F">F</option></select></div>
+<div class="col-8"><label>Naissance</label><input type="date" name="date_naissance" class="form-control"></div>
+<div class="col-12"><label>Classe souhaitée</label><select name="classe_souhaitee" class="form-select">{% for c in classes %}<option>{{ c['nom'] }}</option>{% endfor %}</select></div>
+<div class="col-6"><label>Tuteur</label><input name="tuteur" class="form-control"></div>
+<div class="col-6"><label>Tél tuteur *</label><input name="telephone_tuteur" class="form-control" required></div>
+<div class="col-12"><label>Adresse</label><input name="adresse" class="form-control"></div>
+<div class="col-12"><button class="btn btn-success w-100 mt-2">Envoyer ma demande → imprimer la fiche</button></div></div></form></div></div>
+<div class="col-md-6"><div class="alert alert-info">Après envoi, <b>imprimez la fiche de demande</b> et apportez-la à l'école avec l'extrait de naissance. Le secrétariat validera et vous donnera le <b>matricule</b> = mot de passe initial de l'espace parent.</div></div></div>{% endblock %}

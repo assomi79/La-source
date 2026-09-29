@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% block title %}Fiche élève{% endblock %}{% block content %}
+<div class="d-flex justify-content-between"><h3>📋 {{ e['nom'] }} {{ e['prenoms'] }} <small class="text-muted">{{ e['matricule'] }}</small></h3>
+<div><a href="{{ url_for('eleve_modifier', eid=e['id']) }}" class="btn btn-primary btn-sm">Modifier</a>
+<a href="{{ url_for('paiement') }}?eleve_id={{ e['id'] }}" class="btn btn-warning btn-sm">Encaisser</a></div></div>
+<div class="row g-3 mt-1">
+<div class="col-md-4"><div class="card"><div class="card-body">
+<b>Classe :</b> {{ e['classe_nom'] }} ({{ e['cycle'] }})<br><b>Sexe :</b> {{ e['sexe'] }}<br>
+<b>Né(e) le :</b> {{ e['date_naissance'] }} à {{ e['lieu_naissance'] }}<br><b>Tuteur :</b> {{ e['tuteur'] }} — {{ e['telephone_tuteur'] }}<br><b>Statut :</b> {{ e['statut'] }}
+</div></div>
+<div class="card mt-3"><div class="card-header bg-warning fw-bold">💰 Scolarité</div><div class="card-body">
+Total dû : <b>{{ "{:,}".format(total_du).replace(',',' ') }} F</b><br>Payé : <b class="text-success">{{ "{:,}".format(total_paye).replace(',',' ') }} F</b><br>
+Reste : <b class="{{ 'text-danger' if reste>0 else 'text-success' }}">{{ "{:,}".format(reste).replace(',',' ') }} F</b>
+</div></div></div>
+<div class="col-md-8">
+<div class="card"><div class="card-header fw-bold">Paiements</div><div class="card-body table-responsive"><table class="table table-sm">
+<tr><th>Date</th><th>Rubrique</th><th>Montant</th><th>Reçu</th></tr>
+{% for p in paiements %}<tr><td>{{ p['date'] }}</td><td>{{ p['rubrique'] }}</td><td>{{ "{:,}".format(p['montant']).replace(',',' ') }} F</td><td><a href="{{ url_for('recurecu', recu_no=p['recu_no']) }}">{{ p['recu_no'] }}</a></td></tr>
+{% else %}<tr><td colspan="4" class="text-muted">Aucun paiement.</td></tr>{% endfor %}</table></div></div>
+<div class="card mt-3"><div class="card-header fw-bold">Dernières notes / Présences / Discipline</div><div class="card-body">
+<p class="mb-1"><b>Notes :</b> {{ notes|length }} saisie(s)</p>
+<p class="mb-1"><b>Présences récentes :</b> {% for p in presences %}<span class="badge {{ 'bg-success' if p['statut']=='Présent' else 'bg-danger' if p['statut']=='Absent' else 'bg-warning' }}">{{ p['date'] }}: {{ p['statut'] }}</span> {% endfor %}</p>
+<p><b>Discipline :</b> {% for d in disciplines %}<span class="badge bg-dark">{{ d['date'] }} — {{ d['type'] }} : {{ d['motif'] }}</span> {% else %}RAS{% endfor %}</p>
+</div></div>
+</div></div>{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}{% block title %}Finances{% endblock %}{% block content %}
+<div class="d-flex justify-content-between"><h3>💰 Finances — Caisse & Impayés</h3><a href="{{ url_for('paiement') }}" class="btn btn-warning">+ Encaisser</a></div>
+<div class="row g-3 my-2">
+<div class="col-md-4"><div class="card bg-success text-white"><div class="card-body"><h4>{{ "{:,}".format(total_rec).replace(',',' ') }} F</h4><small>Recettes ({{ annee['libelle'] }})</small></div></div></div>
+<div class="col-md-4"><div class="card bg-danger text-white"><div class="card-body"><h4>{{ "{:,}".format(total_dep).replace(',',' ') }} F</h4><small>Dépenses</small></div></div></div>
+<div class="col-md-4"><div class="card bg-primary text-white"><div class="card-body"><h4>{{ "{:,}".format(solde).replace(',',' ') }} F</h4><small>Solde caisse</small></div></div></div></div>
+<div class="row g-3">
+<div class="col-md-6"><div class="card"><div class="card-header fw-bold">Recettes par rubrique</div><div class="card-body"><table class="table table-sm">
+{% for r in par_rub %}<tr><td>{{ r['rubrique'] }}</td><td>{{ r['n'] }} paiements</td><td align="right"><b>{{ "{:,}".format(r['s']).replace(',',' ') }} F</b></td></tr>{% endfor %}</table></div></div>
+<div class="card mt-3"><div class="card-header fw-bold">Derniers encaissements</div><div class="card-body table-responsive"><table class="table table-sm">
+<tr><th>Reçu</th><th>Élève</th><th>Rubrique</th><th>Montant</th></tr>
+{% for p in recents %}<tr><td><a href="{{ url_for('recurecu', recu_no=p['recu_no']) }}">{{ p['recu_no'] }}</a></td><td>{{ p['nom'] }} {{ p['prenoms'] }}</td><td>{{ p['rubrique'] }}</td><td>{{ "{:,}".format(p['montant']).replace(',',' ') }}</td></tr>{% endfor %}</table></div></div></div>
+<div class="col-md-6"><div class="card border-danger"><div class="card-header bg-danger text-white fw-bold">⚠️ Top impayés</div><div class="card-body table-responsive"><table class="table table-sm">
+<tr><th>Élève</th><th>Classe</th><th>Dû</th><th>Payé</th><th>Reste</th><th></th></tr>
+{% for i in impayes %}<tr><td>{{ i['e']['nom'] }} {{ i['e']['prenoms'] }}</td><td>{{ i['e']['classe_nom'] }}</td><td>{{ "{:,}".format(i['du']).replace(',',' ') }}</td><td>{{ "{:,}".format(i['paye']).replace(',',' ') }}</td><td class="text-danger"><b>{{ "{:,}".format(i['reste']).replace(',',' ') }}</b></td>
+<td><a href="{{ url_for('paiement') }}?eleve_id={{ i['e']['id'] }}" class="btn btn-sm btn-warning">Encaisser</a></td></tr>{% else %}<tr><td colspan="6" class="text-success">Aucun impayé. 🎉</td></tr>{% endfor %}</table></div></div>
+<div class="card mt-3"><div class="card-header fw-bold">+ Dépense</div><div class="card-body"><form method="post" action="{{ url_for('depense') }}" class="row g-2">
+<div class="col-4"><input type="date" name="date" class="form-control"></div><div class="col-4"><select name="categorie" class="form-select"><option>Fonctionnement</option><option>Salaires</option><option>Fournitures</option><option>Loyer</option><option>Autre</option></select></div>
+<div class="col-4"><input type="number" name="montant" class="form-control" placeholder="Montant" required></div>
+<div class="col-8"><input name="libelle" class="form-control" placeholder="Libellé" required></div><div class="col-4"><button class="btn btn-danger w-100">Ajouter</button></div></form>
+<table class="table table-sm mt-2">{% for d in deps %}<tr><td>{{ d['date'] }}</td><td>{{ d['libelle'] }}</td><td align="right">{{ "{:,}".format(d['montant']).replace(',',' ') }}</td></tr>{% endfor %}</table>
+</div></div></div></div>{% endblock %}
